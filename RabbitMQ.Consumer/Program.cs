@@ -15,12 +15,14 @@ using IModel channel = connection.CreateModel();
 //Queue oluşturma
 channel.QueueDeclare();
 //Consumer'dada kuyruk publisher'daki ile birebir aynı yapılandırmayla tanımlanmalıdır.
-channel.QueueDeclare(queue: "example-queue", exclusive: false);
+channel.QueueDeclare(queue: "example-queue", exclusive: false, durable: true);
 
 
 //Queue'den mesaj okuma
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue: "example-queue", false, consumer);
+channel.BasicConsume(queue: "example-queue", autoAck: false, consumer);
+channel.BasicQos(0, 1, false);
+
 
 consumer.Received += (sender, e) =>
 {
@@ -28,6 +30,7 @@ consumer.Received += (sender, e) =>
 	//e.Body : Kuyruktaki mesajın verisini bütünsel olarak getirecektir
 	//e.Body.Span veya e.Body.ToArray() : kuyruktaki mesajın byte verisini getirecektir
 	Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));
+	channel.BasicAck(deliveryTag: e.DeliveryTag, multiple: false);
 };
 
 Console.Read();
