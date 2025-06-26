@@ -23,6 +23,7 @@ channel.QueueBind(
 	routingKey: string.Empty,
 	new Dictionary<string, object>
 	{
+		["x-match"] = "all",
 		["no"] = value
 	}
 	);
